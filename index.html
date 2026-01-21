@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>GestuMemo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Andada+Pro:ital,wght@0,400..840;1,400..840&family=Doto:wght@100..900&family=VT323&display=swap" rel="stylesheet">
+    <style>
+      /* Font Classes per PRD */
+      .title-doto {
+        font-family: 'Doto', sans-serif;
+        font-weight: 800; /* Bold for impact */
+      }
+      .text-body {
+        font-family: 'Andada Pro', serif;
+      }
+      .ui-text {
+        font-family: 'VT323', monospace;
+        text-transform: uppercase; /* VT323 looks great uppercase for UI */
+      }
+
+      body {
+        background-color: #E0DDD5; /* Morandi Oatmeal/Beige */
+        color: #4A4A4A;
+        font-family: 'Andada Pro', serif; /* Default to body font */
+        overflow: hidden; /* Prevent scrolling, app feels like a desktop */
+      }
+      /* Custom Scrollbar for sticker drawer */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #A4B494; /* Morandi Sage */
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #8FA08F; 
+      }
+      .pattern-grid {
+        background-image: 
+          linear-gradient(#d1d5db 1px, transparent 1px),
+          linear-gradient(90deg, #d1d5db 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .pattern-dot {
+        background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      /* Spiral Binding Effect */
+      .spiral-hole {
+        width: 12px;
+        height: 12px;
+        background: #333;
+        border-radius: 50%;
+        margin: 12px auto;
+        box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+      }
+      .spiral-ring {
+        width: 40px;
+        height: 14px;
+        background: linear-gradient(90deg, #8C8C8C, #D9D9D9, #8C8C8C);
+        border-radius: 4px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%) rotate(-5deg);
+        box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+        z-index: 20;
+      }
+      /* Animation for recording */
+      @keyframes pulse-record {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-pulse-record {
+        animation: pulse-record 1.5s infinite ease-in-out;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.27.5",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

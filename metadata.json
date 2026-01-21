@@ -1,0 +1,8 @@
+{
+  "name": "GestuMemo - Y2K Digital Scrapbook",
+  "description": "A collaborative, interactive digital scrapbook with a Y2K aesthetic, featuring drag-and-drop stickers, ransom note text, and simulated analog interactions.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
