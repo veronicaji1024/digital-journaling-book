@@ -38,7 +38,16 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
 
   const handleDragEnd = (_: any, info: any) => {
     if (isResizing) return;
-    onUpdate(item.id, { zIndex: Date.now() }); 
+    // CRITICAL FIX: Update the actual x/y state based on the drag offset
+    // This ensures position is persisted when component unmounts (page flip)
+    const newX = item.x + info.offset.x;
+    const newY = item.y + info.offset.y;
+
+    onUpdate(item.id, { 
+        x: newX,
+        y: newY,
+        zIndex: Date.now() 
+    }); 
   };
 
   const handleTogglePlay = (e: React.MouseEvent) => {
@@ -98,9 +107,13 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
         return (
           <div className="relative group p-3 bg-white shadow-lg rotate-1 transition-transform">
              {/* Polaroid Style */}
-            <div className="aspect-square w-40 overflow-hidden bg-[#F0F0F0] mb-4 border border-gray-100">
-               <img src={item.content} alt="memory" className="w-full h-full object-cover pointer-events-none" />
-            </div>
+             {/* Use div with background-image to fix html2canvas object-fit export issues */}
+            <div 
+                className="aspect-square w-40 overflow-hidden bg-[#F0F0F0] mb-4 border border-gray-100 bg-cover bg-center"
+                style={{ backgroundImage: `url(${item.content})` }}
+                role="img"
+                aria-label={item.meta?.caption || "memory"}
+            />
             <div className="text-body italic text-center text-[#4A4A4A] text-lg">
               {item.meta?.caption || ''}
             </div>
@@ -119,6 +132,9 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
            };
            const bg = colors[item.content] || '#E3D5A5';
            
+           // Rice paper texture data URI to avoid 404 errors
+           const texture = `data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E`;
+
            return (
              <div 
                className="w-32 h-8 backdrop-blur-sm shadow-sm flex items-center justify-center opacity-90"
@@ -128,7 +144,10 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
                  maskImage: 'linear-gradient(90deg, transparent 0%, black 2%, black 98%, transparent 100%)' // Fade edges slightly
                }}
              >
-                <div className="w-full h-full opacity-20 bg-[url('https://www.transparenttextures.com/patterns/rice-paper.png')]"></div>
+                <div 
+                  className="w-full h-full"
+                  style={{ backgroundImage: `url("${texture}")` }}
+                ></div>
              </div>
            );
         }
@@ -265,9 +284,11 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
       whileTap={{ scale: item.scale * 1.05, cursor: 'grabbing' }}
       onDragEnd={handleDragEnd}
       onTap={() => onSelect(item.id)}
-      style={{ zIndex: item.zIndex, position: 'absolute' }}
+      style={{ zIndex: item.zIndex, position: 'absolute', top: 0, left: 0 }}
       className={cn(
         "cursor-grab touch-none",
+        // Only apply selection visual if selected. 
+        // NOTE: The 'no-export' class on children will prevent UI capture, but this ring also needs to be removed by deselecting in App.tsx
         isSelected && "ring-2 ring-[#B5C0D0] ring-offset-2 ring-offset-transparent rounded-lg"
       )}
     >
@@ -275,8 +296,8 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
       
       {isSelected && (
         <>
-            {/* Toolbar */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex gap-2 bg-white rounded-full shadow-lg px-2 py-1 z-50">
+            {/* Toolbar - Added no-export class */}
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex gap-2 bg-white rounded-full shadow-lg px-2 py-1 z-50 no-export">
                 {/* Rotate Left */}
                 <button 
                     onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { rotation: item.rotation - 15 }); }}
@@ -304,9 +325,9 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
                 </button>
             </div>
 
-            {/* Resize Handle */}
+            {/* Resize Handle - Added no-export class */}
             <div 
-                className="absolute -bottom-3 -right-3 w-6 h-6 bg-white rounded-full shadow border border-gray-300 flex items-center justify-center cursor-nwse-resize z-50 hover:bg-gray-50 transition-colors"
+                className="absolute -bottom-3 -right-3 w-6 h-6 bg-white rounded-full shadow border border-gray-300 flex items-center justify-center cursor-nwse-resize z-50 hover:bg-gray-50 transition-colors no-export"
                 onPointerDown={handleResizeStart}
             >
                 <Maximize2 size={12} className="text-gray-500 transform rotate-90" />

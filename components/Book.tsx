@@ -13,6 +13,8 @@ interface BookProps {
   activeSide: 0 | 1;
   setActiveSide: (side: 0 | 1) => void;
   volume: number;
+  selectedItemId: string | null;
+  onSelect: (id: string | null) => void;
 }
 
 export const Book: React.FC<BookProps> = ({ 
@@ -21,10 +23,10 @@ export const Book: React.FC<BookProps> = ({
     currentPageIndex, 
     activeSide, 
     setActiveSide,
-    volume
+    volume,
+    selectedItemId,
+    onSelect
 }) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const currentPage = pages[currentPageIndex];
   const nextPage = pages[currentPageIndex + 1];
 
@@ -46,7 +48,7 @@ export const Book: React.FC<BookProps> = ({
         items: p.items.filter(i => i.id !== itemId)
       };
     }));
-    setSelectedId(null);
+    onSelect(null);
   };
 
   const renderPage = (page: ScrapPage | undefined, isRight: boolean) => {
@@ -56,6 +58,7 @@ export const Book: React.FC<BookProps> = ({
 
     return (
       <div 
+        id={isRight ? 'book-page-right' : 'book-page-left'}
         className={cn(
           "relative flex-1 h-full shadow-inner overflow-hidden transition-colors duration-300",
           page.paperType === 'grid' ? 'pattern-grid' : 'pattern-dot',
@@ -65,7 +68,7 @@ export const Book: React.FC<BookProps> = ({
         )}
         onClick={(e) => {
             e.stopPropagation();
-            setSelectedId(null);
+            onSelect(null);
             setActiveSide(isRight ? 1 : 0);
         }}
       >
@@ -103,8 +106,8 @@ export const Book: React.FC<BookProps> = ({
             item={item}
             onUpdate={(id, changes) => handleUpdateItem(page.id, id, changes)}
             onDelete={(id) => handleDeleteItem(page.id, id)}
-            onSelect={setSelectedId}
-            isSelected={selectedId === item.id}
+            onSelect={onSelect}
+            isSelected={selectedItemId === item.id}
             volume={volume}
           />
         ))}

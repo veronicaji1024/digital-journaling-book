@@ -45,8 +45,10 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({ isOpen, 
   const startRecording = async () => {
     try {
       setError(null);
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-         throw new Error("Microphone not supported.");
+      // Explicit check for mediaDevices support
+      if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+         setError("Microphone not supported in this browser context (try HTTPS).");
+         return;
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -93,8 +95,14 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({ isOpen, 
       }, 1000);
 
     } catch (err: any) {
-      console.error("Microphone access denied", err);
-      setError("Microphone access blocked. Please enable it in browser settings.");
+      // Gracefully handle permission denials
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          console.warn("Microphone permission denied.");
+          setError("Microphone access blocked. Please enable permissions or upload a file.");
+      } else {
+          console.error("Microphone initialization error:", err);
+          setError("Could not start recording.");
+      }
     }
   };
 
@@ -167,8 +175,8 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({ isOpen, 
         {/* Status Message */}
         {error ? (
             <div className="text-center mb-6">
-                <p className="text-red-400 text-sm font-bold mb-2 text-body">{error}</p>
-                <div className="flex flex-col items-center gap-2">
+                <p className="text-red-400 text-sm font-bold mb-2 text-body px-4">{error}</p>
+                <div className="flex flex-col items-center gap-2 mt-2">
                      <button 
                         onClick={() => fileInputRef.current?.click()}
                         className="px-6 py-2 bg-[#A4B494] text-white rounded-full font-bold shadow-md hover:bg-[#8FA08F] flex items-center gap-2 ui-text text-lg"
